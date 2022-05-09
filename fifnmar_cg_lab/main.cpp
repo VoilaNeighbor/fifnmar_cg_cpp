@@ -10,11 +10,26 @@
 struct DrawLineController: Slot<CursorClick> {
 	void receive(CursorClick click) override {
 		fmt::print("<Click pos=({}, {}), button={}/>\n", click.x, click.y, magic_enum::enum_name(click.button));
+		if (click.button == CursorClick::kRight) {
+			_state = kIdle;
+		} else if (_state == kIdle) {
+			std::tie(_sx, _sy) = std::tie(click.x, click.y);
+			_state = kStarted;
+		} else {
+			auto sx = (u32)(_sx * (f32)(board::width()));
+			auto sy = (u32)(_sy * (f32)(board::height()));
+			auto tx = (u32)(click.x * (f32)(board::width()));
+			auto ty = (u32)(click.y * (f32)(board::height()));
+			map_line(sx, sy, tx, ty, [](u32 x, u32 y) {
+				board::set_pixel(x, y, kBlack);
+			});
+			_state = kIdle;
+		}
 	}
 
 private:
-//	enum State { kIdle, kStarted };
-//	u32 sx, sy;
+	f32 _sx, _sy;
+	enum State { kIdle, kStarted } _state = kIdle;
 };
 
 int main() {
@@ -40,13 +55,6 @@ int main() {
 
 	ensure(gladLoadGL(glfwGetProcAddress));
 	board::init(160, 120);
-	u32 sx = 80;
-	u32 sy = 60;
-	u32 len = 20;
-	map_line(sx, sy, sx + len, sy, [](u32 x, u32 y) { board::set_pixel(x, y, kBlack); });
-	map_line(sx, sy, sx, sy + len, [](u32 x, u32 y) { board::set_pixel(x, y, kBlack); });
-	map_line(sx, sy, sx + len / 2, sy + len, [](u32 x, u32 y) { board::set_pixel(x, y, kBlack); });
-	map_line(sx, sy, sx + len, sy + len / 2, [](u32 x, u32 y) { board::set_pixel(x, y, kBlack); });
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwWaitEvents();

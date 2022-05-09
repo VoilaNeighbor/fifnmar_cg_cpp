@@ -47,10 +47,10 @@ private:
 	void receive(Args...) override {}
 };
 
-// GL coordinate.
 struct CursorClick {
 	enum Button { kLeft, kRight };
 
+	// 0..=1
 	f32 x, y;
 	Button button;
 };

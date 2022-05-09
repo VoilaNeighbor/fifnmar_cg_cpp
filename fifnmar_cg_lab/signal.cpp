@@ -18,5 +18,5 @@ void mouse_button_callback(GLFWwindow* window, i32 button, i32 action, i32 mods)
 	auto y = 1 - pixel_y / scr_height;
 
 	auto button_type = button == GLFW_MOUSE_BUTTON_LEFT ? CursorClick::kLeft : CursorClick::kRight;
-	g_cursor_click_signal.send({ .x = (f32)(x * 2 - 1), .y = (f32)(y * 2 - 1), .button = button_type });
+	g_cursor_click_signal.send({ .x = (f32)x, .y = (f32)y, .button = button_type });
 }

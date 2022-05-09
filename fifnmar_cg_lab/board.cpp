@@ -92,7 +92,7 @@ namespace board {
 	}
 
 	void render() {
-		glTextureSubImage2D(texture_id, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+		glTextureSubImage2D(texture_id, 0, 0, 0, ::width, ::height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		glUseProgram(program_id);
 		glBindTextureUnit(0, texture_id);
 		glUniform1i(glGetUniformLocation(program_id, "tex"), 0);
@@ -101,6 +101,9 @@ namespace board {
 	}
 
 	void set_pixel(u32 x, u32 y, Rgba color) {
-		pixels[y * width + x] = color;
+		pixels[y * ::width + x] = color;
 	}
+
+	u32 width() { return ::width; }
+	u32 height() { return ::height; }
 } // namespace board
