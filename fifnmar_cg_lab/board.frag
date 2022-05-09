@@ -1,6 +1,8 @@
 #version 460 core
+uniform sampler2D tex;
+in vec2 uv;
 out vec4 result;
 
 void main() {
-	result = vec4(0.7, 0.8, 0.9, 1.0);
+	result = texture(tex, uv);
 }

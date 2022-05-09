@@ -22,7 +22,7 @@ int main() {
 	});
 
 	ensure(gladLoadGL(glfwGetProcAddress));
-	board::init();
+	board::init(80, 60);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwWaitEvents();

@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <array>
-#include "utils.hpp"
+#include <vector>
 
 namespace {
 	void check_gl_err(u32 handle, auto status_t, auto get_iv, auto get_log) {
@@ -42,22 +42,36 @@ namespace {
 		f32 x, y;
 	};
 
+	struct Rgba {
+		u8 r, g, b, a;
+	};
+
+	constexpr Rgba kWhite = Rgba { 255, 255, 255, 255 };
+
 	std::array<Vertex, 6> kVertices {{
 		{ -1, -1 },
 		{ -1, 1 },
-		{ 1,  -1 },
+		{ 1, -1 },
 		{ -1, 1 },
-		{ 1,  -1 },
-		{ 1,  1 },
+		{ 1, -1 },
+		{ 1, 1 },
 	}};
 
 	u32 program_id;
 	u32 vertex_array_id;
 	u32 vertex_buffer_id;
+	u32 texture_id;
+	i32 width;
+	i32 height;
+	std::vector<Rgba> pixels;
 } // namespace (states)
 
 namespace board {
-	void init() {
+	void init(u32 width, u32 height) {
+		::width = (i32)width;
+		::height = (i32)height;
+		pixels.resize(width * height, kWhite);
+
 		// <Init shader program>
 		auto vert = load_shader(GL_VERTEX_SHADER, "fifnmar_cg_lab/board.vert");
 		auto frag = load_shader(GL_FRAGMENT_SHADER, "fifnmar_cg_lab/board.frag");
@@ -75,10 +89,19 @@ namespace board {
 		glCreateBuffers(1, &vertex_buffer_id);
 		glNamedBufferData(vertex_buffer_id, sizeof(kVertices), kVertices.data(), GL_DYNAMIC_DRAW);
 		glVertexArrayVertexBuffer(vertex_array_id, 0, vertex_buffer_id, 0, sizeof(Vertex));
+
+		// <Texture>
+		glCreateTextures(GL_TEXTURE_2D, 1, &texture_id);
+		glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureStorage2D(texture_id, 1, GL_RGBA8, ::width, ::height);
 	}
 
 	void render() {
+		glTextureSubImage2D(texture_id, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		glUseProgram(program_id);
+		glBindTextureUnit(0, texture_id);
+		glUniform1i(glGetUniformLocation(program_id, "tex"), 0);
 		glBindVertexArray(vertex_array_id);
 		glDrawArrays(GL_TRIANGLES, 0, kVertices.size());
 	}
