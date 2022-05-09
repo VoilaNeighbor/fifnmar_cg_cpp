@@ -42,12 +42,6 @@ namespace {
 		f32 x, y;
 	};
 
-	struct Rgba {
-		u8 r, g, b, a;
-	};
-
-	constexpr Rgba kWhite = Rgba { 255, 255, 255, 255 };
-
 	std::array<Vertex, 6> kVertices {{
 		{ -1, -1 },
 		{ -1, 1 },
@@ -104,5 +98,9 @@ namespace board {
 		glUniform1i(glGetUniformLocation(program_id, "tex"), 0);
 		glBindVertexArray(vertex_array_id);
 		glDrawArrays(GL_TRIANGLES, 0, kVertices.size());
+	}
+
+	void set_pixel(u32 x, u32 y, Rgba color) {
+		pixels[y * width + x] = color;
 	}
 } // namespace board
