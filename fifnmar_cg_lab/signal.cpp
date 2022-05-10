@@ -5,7 +5,8 @@
 Signal<CursorClick> g_cursor_click_signal {};
 
 void mouse_button_callback(GLFWwindow* window, i32 button, i32 action, i32 mods) {
-	bool is_click_event = action == GLFW_PRESS && (button == GLFW_MOUSE_BUTTON_LEFT || button == GLFW_MOUSE_BUTTON_RIGHT);
+	bool is_click_event = action == GLFW_PRESS
+		&& (button == GLFW_MOUSE_BUTTON_LEFT || button == GLFW_MOUSE_BUTTON_RIGHT);
 	if (!is_click_event) { return; }
 
 	f64 pixel_x, pixel_y;

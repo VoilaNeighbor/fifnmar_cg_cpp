@@ -16,7 +16,7 @@ std::nullptr_t constexpr null = nullptr;
 
 void ensure(auto x, char const* msg = "Unexpected null") {
 	if (!x) {
-		fmt::print(stderr, "<Error {}/>", msg);
+		fmt::print(stderr, "<Error>{}</Error>\n", msg);
 		std::exit(-1);
 	}
 }

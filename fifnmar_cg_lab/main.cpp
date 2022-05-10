@@ -2,12 +2,13 @@
 #include <GLFW/glfw3.h>
 #include <fmt/core.h>
 #include <magic_enum.hpp>
+#include <cmath>
 #include "board.hpp"
 #include "utils.hpp"
 #include "signal.hpp"
 #include "draw.hpp"
 
-struct DrawLineController: Slot<CursorClick> {
+struct DrawLineController: SlotMixin<CursorClick> {
 	void receive(CursorClick click) override {
 		fmt::print("<Click pos=({}, {}), button={}/>\n", click.x, click.y, magic_enum::enum_name(click.button));
 		if (click.button == CursorClick::kRight) {
@@ -28,7 +29,7 @@ struct DrawLineController: Slot<CursorClick> {
 	}
 
 private:
-	f32 _sx, _sy;
+	f32 _sx {}, _sy {};
 	enum State { kIdle, kStarted } _state = kIdle;
 };
 
@@ -49,8 +50,29 @@ int main() {
 		glViewport(0, 0, width, height);
 	});
 
-	DrawLineController fake;
-	g_cursor_click_signal.connect(fake);
+	// Make a laser-pen cursor
+	u32 constexpr kCursorRadius = 3;
+	u32 constexpr kCursorLen = kCursorRadius * 2;
+	Rgba cursor_pixels[kCursorLen * kCursorLen];
+	for (i32 i = -kCursorRadius; i != kCursorRadius; ++i) {
+		for (i32 j = -kCursorRadius; j != kCursorRadius; ++j) {
+			using namespace std;
+			auto idx = (i + kCursorRadius) * kCursorLen + j + kCursorRadius;
+			auto alpha = (u8)(max((f64)0, cos(2 * hypot(i, j) / kCursorRadius)) * 255);
+			cursor_pixels[idx] = kRed.with_alpha(alpha);
+		}
+	}
+	GLFWimage cursor_img {
+		.width = kCursorLen,
+		.height = kCursorLen,
+		.pixels = (u8*)cursor_pixels
+	};
+	auto cursor = glfwCreateCursor(&cursor_img, kCursorRadius, kCursorRadius);
+	ensure(cursor);
+	glfwSetCursor(window, cursor);
+
+	DrawLineController draw_line_controller;
+	g_cursor_click_signal.connect(draw_line_controller);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 
 	ensure(gladLoadGL(glfwGetProcAddress));

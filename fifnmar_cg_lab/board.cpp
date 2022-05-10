@@ -7,23 +7,17 @@
 #include <vector>
 
 namespace {
-	void check_gl_err(u32 handle, auto status_t, auto get_iv, auto get_log) {
+	void check_err(u32 handle, auto status_t, auto get_iv, auto get_log) {
 		i32 ok;
 		get_iv(handle, status_t, &ok);
 		if (ok) { return; }
-		char buf[1024];
-		get_log(handle, sizeof(buf), null, buf);
-		fmt::print(stderr, "<GlError>{}</GlError>\n", buf);
+		char err_info[1024];
+		get_log(handle, sizeof(err_info), null, err_info);
+		fmt::print(stderr, "<GlError>{}</GlError>\n", err_info);
 		std::exit(-1);
 	}
 
-	struct ShaderHandle {
-		u32 id;
-
-		~ShaderHandle() { glDeleteShader(id); }
-	};
-
-	ShaderHandle load_shader(auto shader_type, char const* shader_filename) {
+	u32 load_shader(auto shader_type, char const* shader_filename) {
 		std::ifstream file(shader_filename);
 		std::stringstream buf;
 		buf << file.rdbuf();
@@ -32,8 +26,8 @@ namespace {
 		u32 id = glCreateShader(shader_type);
 		glShaderSource(id, 1, &c_shader_content, null);
 		glCompileShader(id);
-		check_gl_err(id, GL_COMPILE_STATUS, glGetShaderiv, glGetShaderInfoLog);
-		return { id };
+		check_err(id, GL_COMPILE_STATUS, glGetShaderiv, glGetShaderInfoLog);
+		return id;
 	}
 } // namespace (helpers)
 
@@ -67,13 +61,15 @@ namespace board {
 		pixels.resize(width * height, kWhite);
 
 		// <Init shader program>
-		auto vert = load_shader(GL_VERTEX_SHADER, "fifnmar_cg_lab/board.vert");
-		auto frag = load_shader(GL_FRAGMENT_SHADER, "fifnmar_cg_lab/board.frag");
 		program_id = glCreateProgram();
-		glAttachShader(program_id, vert.id);
-		glAttachShader(program_id, frag.id);
+		auto vert_id = load_shader(GL_VERTEX_SHADER, "fifnmar_cg_lab/board.vert");
+		auto frag_id = load_shader(GL_FRAGMENT_SHADER, "fifnmar_cg_lab/board.frag");
+		glAttachShader(program_id, vert_id);
+		glAttachShader(program_id, frag_id);
 		glLinkProgram(program_id);
-		check_gl_err(program_id, GL_LINK_STATUS, glGetProgramiv, glGetProgramInfoLog);
+		check_err(program_id, GL_LINK_STATUS, glGetProgramiv, glGetProgramInfoLog);
+		glDeleteShader(frag_id);
+		glDeleteShader(vert_id);
 
 		// <Vertex>
 		glCreateVertexArrays(1, &vertex_array_id);

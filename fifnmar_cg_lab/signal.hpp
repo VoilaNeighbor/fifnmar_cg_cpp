@@ -9,12 +9,12 @@ template <typename... Args>
 struct Signal;
 
 template <typename... Args>
-struct Slot {
-	Slot(): prev(null), next(null) {}
+struct SlotMixin {
+	SlotMixin(): prev(null), next(null) {}
 
-	Slot(Slot* prev, Slot* next): prev(prev), next(next) {}
+	SlotMixin(SlotMixin* prev, SlotMixin* next): prev(prev), next(next) {}
 
-	virtual ~Slot() {
+	virtual ~SlotMixin() {
 		if (prev) {
 			prev->next = next;
 		}
@@ -25,13 +25,13 @@ struct Slot {
 private:
 	friend class Signal<Args...>;
 
-	Slot* prev;
-	Slot* next;
+	SlotMixin* prev;
+	SlotMixin* next;
 };
 
 template <typename... Args>
-struct Signal: private Slot<Args...> {
-	void connect(Slot<Args...>& slot) {
+struct Signal: private SlotMixin<Args...> {
+	void connect(SlotMixin<Args...>& slot) {
 		slot.prev = this;
 		slot.next = this->next;
 		this->next = &slot;
@@ -46,6 +46,7 @@ struct Signal: private Slot<Args...> {
 private:
 	void receive(Args...) override {}
 };
+
 
 struct CursorClick {
 	enum Button { kLeft, kRight };
