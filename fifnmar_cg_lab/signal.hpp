@@ -1,37 +1,35 @@
 #pragma once
 
-#include <concepts>
+#include <functional>
 #include "utils.hpp"
 
-struct GLFWwindow;
+template <typename... Args>
+struct ChainSignal;
 
 template <typename... Args>
-struct Signal;
+struct ChainSlotMixin {
+	ChainSlotMixin(): prev(null), next(null) {}
 
-template <typename... Args>
-struct SlotMixin {
-	SlotMixin(): prev(null), next(null) {}
+	ChainSlotMixin(ChainSlotMixin* prev, ChainSlotMixin* next): prev(prev), next(next) {}
 
-	SlotMixin(SlotMixin* prev, SlotMixin* next): prev(prev), next(next) {}
-
-	virtual ~SlotMixin() {
+	virtual ~ChainSlotMixin() {
 		if (prev) {
 			prev->next = next;
 		}
 	}
 
-	virtual void receive(Args... args) = 0;
+	virtual void receive(Args...) = 0;
 
 private:
-	friend class Signal<Args...>;
+	friend class ChainSignal<Args...>;
 
-	SlotMixin* prev;
-	SlotMixin* next;
+	ChainSlotMixin* prev;
+	ChainSlotMixin* next;
 };
 
 template <typename... Args>
-struct Signal: private SlotMixin<Args...> {
-	void connect(SlotMixin<Args...>& slot) {
+struct ChainSignal: private ChainSlotMixin<Args...> {
+	void connect(ChainSlotMixin<Args...>& slot) {
 		slot.prev = this;
 		slot.next = this->next;
 		this->next = &slot;
@@ -47,15 +45,18 @@ private:
 	void receive(Args...) override {}
 };
 
+template <typename... Args>
+struct CallbackSignal: private std::vector<std::function<void(Args...)>> {
+	using Callback = std::function<void(Args...)>;
+	using Base = std::vector<Callback>;
 
-struct CursorClick {
-	enum Button { kLeft, kRight };
+	void connect(Callback callback) {
+		emplace_back(std::move(callback));
+	}
 
-	// 0..=1
-	f32 x, y;
-	Button button;
+	void send(Args... args) {
+		for (auto const& callback: *this) {
+			callback(args...);
+		}
+	}
 };
-
-extern Signal<CursorClick> g_cursor_click_signal;
-
-void mouse_button_callback(GLFWwindow* window, i32 button, i32 action, i32 mods);

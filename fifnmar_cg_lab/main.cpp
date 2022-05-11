@@ -6,12 +6,13 @@
 #include "board.hpp"
 #include "utils.hpp"
 #include "signal.hpp"
+#include "cursor.hpp"
 #include "draw.hpp"
 
-struct DrawLineController: SlotMixin<CursorClick> {
-	void receive(CursorClick click) override {
+struct DrawLineController: ChainSlotMixin<CursorClickEvent> {
+	void receive(CursorClickEvent click) override {
 		fmt::print("<Click pos=({}, {}), button={}/>\n", click.x, click.y, magic_enum::enum_name(click.button));
-		if (click.button == CursorClick::kRight) {
+		if (click.button == CursorClickEvent::Right) {
 			_state = kIdle;
 		} else if (_state == kIdle) {
 			std::tie(_sx, _sy) = std::tie(click.x, click.y);
