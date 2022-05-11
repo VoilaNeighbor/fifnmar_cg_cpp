@@ -53,11 +53,10 @@ namespace {
 	i32 width;
 	i32 height;
 	std::vector<Rgba> pixels;
+	std::vector<std::function<void()>> render_callbacks;
 } // namespace (states)
 
 namespace board {
-	CallbackSignal<> on_render {};
-
 	void init(u32 width, u32 height) {
 		::width = (i32)width;
 		::height = (i32)height;
@@ -90,9 +89,13 @@ namespace board {
 		glTextureStorage2D(texture_id, 1, GL_RGBA8, ::width, ::height);
 	}
 
+	void on_render(std::function<void()> callback) {
+		render_callbacks.emplace_back(std::move(callback));
+	}
+
 	void render() {
 		std::fill(pixels.begin(), pixels.end(), kWhite);
-		on_render.send();
+		for (auto& i: render_callbacks) { i(); }
 		glTextureSubImage2D(texture_id, 0, 0, 0, ::width, ::height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		glUseProgram(program_id);
 		glBindTextureUnit(0, texture_id);

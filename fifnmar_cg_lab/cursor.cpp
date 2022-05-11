@@ -2,22 +2,21 @@
 
 #include <GLFW/glfw3.h>
 
-ChainSignal<CursorClickEvent> g_cursor_click_signal {};
+ChainSignal<MouseButton> g_cursor_click_signal {};
 
 void mouse_button_callback(GLFWwindow*, i32 button_code, i32 action, i32 mods) {
 	if (action != GLFW_PRESS) { return; }
 
-	CursorClickEvent::Button button;
+	MouseButton button;
 	if (button_code == GLFW_MOUSE_BUTTON_LEFT) {
-		button = CursorClickEvent::Left;
+		button = MouseButton::Left;
 	} else if (button_code == GLFW_MOUSE_BUTTON_RIGHT) {
-		button = CursorClickEvent::Right;
+		button = MouseButton::Right;
 	} else {
 		return;
 	}
 
-	auto [x, y] = cursor_coordinate();
-	g_cursor_click_signal.send({ .x = (f32)x, .y = (f32)y, .button = button });
+	g_cursor_click_signal.send(button);
 }
 
 std::pair<f64, f64> cursor_coordinate() {

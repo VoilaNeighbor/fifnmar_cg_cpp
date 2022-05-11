@@ -4,11 +4,11 @@
 #include "board.hpp"
 #include "cursor.hpp"
 
-struct DrawLineController: ChainSlotMixin<CursorClickEvent> {
+struct DrawLineController: ChainSlotMixin<MouseButton> {
 	DrawLineController();
-	void receive(CursorClickEvent click) override;
+	void receive(MouseButton click) override;
 
 private:
-	f32 _sx {}, _sy {};
+	u32 _x0 {}, _y0 {};
 	enum State { Idle, Started } _state = Idle;
 };

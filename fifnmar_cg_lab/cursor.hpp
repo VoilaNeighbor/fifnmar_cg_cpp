@@ -3,14 +3,9 @@
 #include "utils.hpp"
 #include "signal.hpp"
 
-struct CursorClickEvent {
-	enum Button { Left, Right };
+enum class MouseButton { Left, Right };
 
-	f32 x, y;
-	Button button;
-};
-
-extern ChainSignal<CursorClickEvent> g_cursor_click_signal;
+extern ChainSignal<MouseButton> g_cursor_click_signal;
 
 struct GLFWwindow;
 void mouse_button_callback(GLFWwindow* window, i32 button_code, i32 action, i32 mods);

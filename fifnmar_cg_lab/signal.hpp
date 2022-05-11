@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include "utils.hpp"
 
 template <typename... Args>
@@ -43,20 +42,4 @@ struct ChainSignal: private ChainSlotMixin<Args...> {
 
 private:
 	void receive(Args...) override {}
-};
-
-template <typename... Args>
-struct CallbackSignal: private std::vector<std::function<void(Args...)>> {
-	using Callback = std::function<void(Args...)>;
-	using Base = std::vector<Callback>;
-
-	void connect(Callback callback) {
-		this->emplace_back(std::move(callback));
-	}
-
-	void send(Args... args) {
-		for (auto const& callback: *this) {
-			callback(args...);
-		}
-	}
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include "signal.hpp"
 #include "utils.hpp"
 
@@ -17,8 +18,8 @@ constexpr Rgba kWhite = Rgba { 255, 255, 255, 255 };
 constexpr Rgba kBlack = Rgba { 0, 0, 0, 255 };
 
 namespace board {
-	extern CallbackSignal<> on_render;
 	void init(u32 width, u32 height);
+	void on_render(std::function<void()>);
 	void render();
 	void set_pixel(u32 x, u32 y, Rgba color);
 	u32 width();
