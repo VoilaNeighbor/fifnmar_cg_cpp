@@ -8,8 +8,11 @@
 GLFWwindow* g_window {};
 
 int main() {
+	bool kVsync = true;
 	i32 kScrWidth = 800;
 	i32 kScrHeight = 600;
+	u32 kCursorRadius = 3;
+	u32 kCursorLen = kCursorRadius * 2;
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -23,27 +26,11 @@ int main() {
 	glfwSetFramebufferSizeCallback(g_window, [](auto _, i32 width, i32 height) {
 		glViewport(0, 0, width, height);
 	});
+	glfwSetErrorCallback([](i32 code, auto description) {
+		fmt::print(stderr, "<GlfwError code={}>{}</GlfwError>\n", code, description);
+	});
 
-	// Make a laser-pen cursor
-	u32 constexpr kCursorRadius = 3;
-	u32 constexpr kCursorLen = kCursorRadius * 2;
-	Rgba cursor_pixels[kCursorLen * kCursorLen];
-	for (i32 i = -kCursorRadius; i != kCursorRadius; ++i) {
-		for (i32 j = -kCursorRadius; j != kCursorRadius; ++j) {
-			using namespace std;
-			auto idx = (i + kCursorRadius) * kCursorLen + j + kCursorRadius;
-			auto alpha = (u8)(max((f64)0, cos(2 * hypot(i, j) / kCursorRadius)) * 255);
-			cursor_pixels[idx] = kRed.with_alpha(alpha);
-		}
-	}
-	GLFWimage cursor_img {
-		.width = kCursorLen,
-		.height = kCursorLen,
-		.pixels = (u8*)cursor_pixels
-	};
-	auto cursor = glfwCreateCursor(&cursor_img, kCursorRadius, kCursorRadius);
-	ensure(cursor);
-	glfwSetCursor(g_window, cursor);
+	set_cursor_laser_image(kCursorRadius, kCursorLen);
 
 	DrawLineController draw_line_controller;
 	g_cursor_click_signal.connect(draw_line_controller);
@@ -51,6 +38,8 @@ int main() {
 
 	ensure(gladLoadGL(glfwGetProcAddress));
 	board::init(160, 120);
+
+	glfwSwapInterval(kVsync);
 
 	while (!glfwWindowShouldClose(g_window)) {
 		glfwWaitEvents();
