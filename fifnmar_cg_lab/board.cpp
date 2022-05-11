@@ -1,10 +1,11 @@
-#include "board.hpp"
 #include <glad/gl.h>
 #include <fmt/core.h>
 #include <fstream>
 #include <sstream>
 #include <array>
 #include <vector>
+
+#include "board.hpp"
 
 namespace {
 	void check_err(u32 handle, auto status_t, auto get_iv, auto get_log) {
@@ -55,6 +56,8 @@ namespace {
 } // namespace (states)
 
 namespace board {
+	CallbackSignal<> on_render {};
+
 	void init(u32 width, u32 height) {
 		::width = (i32)width;
 		::height = (i32)height;
@@ -88,6 +91,8 @@ namespace board {
 	}
 
 	void render() {
+		std::fill(pixels.begin(), pixels.end(), kWhite);
+		on_render.send();
 		glTextureSubImage2D(texture_id, 0, 0, 0, ::width, ::height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 		glUseProgram(program_id);
 		glBindTextureUnit(0, texture_id);
@@ -101,5 +106,6 @@ namespace board {
 	}
 
 	u32 width() { return ::width; }
+
 	u32 height() { return ::height; }
 } // namespace board

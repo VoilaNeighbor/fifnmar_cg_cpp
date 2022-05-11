@@ -22,8 +22,10 @@ struct DrawLineController: ChainSlotMixin<CursorClickEvent> {
 			auto sy = (u32)(_sy * (f32)(board::height()));
 			auto tx = (u32)(click.x * (f32)(board::width()));
 			auto ty = (u32)(click.y * (f32)(board::height()));
-			map_line(sx, sy, tx, ty, [](u32 x, u32 y) {
-				board::set_pixel(x, y, kBlack);
+			board::on_render.connect([sx, sy, tx, ty] {
+				map_line(sx, sy, tx, ty, [](u32 x, u32 y) {
+					board::set_pixel(x, y, kBlack);
+				});
 			});
 			_state = kIdle;
 		}

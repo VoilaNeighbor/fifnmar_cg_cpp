@@ -51,7 +51,7 @@ struct CallbackSignal: private std::vector<std::function<void(Args...)>> {
 	using Base = std::vector<Callback>;
 
 	void connect(Callback callback) {
-		emplace_back(std::move(callback));
+		this->emplace_back(std::move(callback));
 	}
 
 	void send(Args... args) {
