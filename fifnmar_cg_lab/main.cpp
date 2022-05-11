@@ -5,6 +5,8 @@
 #include "utils.hpp"
 #include "draw_line_controller.hpp"
 
+GLFWwindow* g_window {};
+
 int main() {
 	i32 kScrWidth = 800;
 	i32 kScrHeight = 600;
@@ -15,10 +17,10 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // For Apple
 
-	auto window = glfwCreateWindow(kScrWidth, kScrHeight, "CG Lab with OpenGL", null, null);
-	ensure(window);
-	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, [](auto _, i32 width, i32 height) {
+	g_window = glfwCreateWindow(kScrWidth, kScrHeight, "CG Lab with OpenGL", null, null);
+	ensure(g_window);
+	glfwMakeContextCurrent(g_window);
+	glfwSetFramebufferSizeCallback(g_window, [](auto _, i32 width, i32 height) {
 		glViewport(0, 0, width, height);
 	});
 
@@ -41,18 +43,18 @@ int main() {
 	};
 	auto cursor = glfwCreateCursor(&cursor_img, kCursorRadius, kCursorRadius);
 	ensure(cursor);
-	glfwSetCursor(window, cursor);
+	glfwSetCursor(g_window, cursor);
 
 	DrawLineController draw_line_controller;
 	g_cursor_click_signal.connect(draw_line_controller);
-	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetMouseButtonCallback(g_window, mouse_button_callback);
 
 	ensure(gladLoadGL(glfwGetProcAddress));
 	board::init(160, 120);
 
-	while (!glfwWindowShouldClose(window)) {
+	while (!glfwWindowShouldClose(g_window)) {
 		glfwWaitEvents();
 		board::render();
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(g_window);
 	}
 }

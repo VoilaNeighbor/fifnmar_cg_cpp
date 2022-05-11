@@ -14,6 +14,10 @@ using f32 = float;
 using f64 = double;
 std::nullptr_t constexpr null = nullptr;
 
+struct GLFWwindow;
+
+extern GLFWwindow* g_window;
+
 void ensure(auto x, char const* msg = "Unexpected null") {
 	if (!x) {
 		fmt::print(stderr, "<Error>{}</Error>\n", msg);

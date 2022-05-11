@@ -1,6 +1,8 @@
 #include "draw_line_controller.hpp"
 #include "draw.hpp"
 
+#include <GLFW/glfw3.h>
+
 namespace {
 	std::pair<u32, u32> percent_to_pixel(f32 x, f32 y) {
 		auto rx = (u32)(x * (f32)(board::width()));
@@ -13,7 +15,21 @@ DrawLineController::DrawLineController() {
 	board::on_render.connect([this] {
 		if (_state != Started) { return; }
 		auto [sx, sy] = percent_to_pixel(_sx, _sy);
-		// todo
+
+		// todo: unify.
+		f64 pixel_x, pixel_y;
+		glfwGetCursorPos(g_window, &pixel_x, &pixel_y);
+
+		i32 scr_width, scr_height;
+		glfwGetWindowSize(g_window, &scr_width, &scr_height);
+
+		auto tx = (u32)(pixel_x / scr_width * board::width());
+		auto ty = (u32)((1 - pixel_y / scr_height) * board::height());
+		if (tx >= board::width() || ty >= board::height()) return;
+
+		map_line(sx, sy, tx, ty, [](u32 x, u32 y) {
+			board::set_pixel(x, y, kSkyBlue);
+		});
 	});
 }
 
