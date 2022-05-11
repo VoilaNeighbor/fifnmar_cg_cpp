@@ -1,44 +1,13 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
-#include <fmt/core.h>
-#include <magic_enum.hpp>
 #include <cmath>
 #include "board.hpp"
 #include "utils.hpp"
-#include "signal.hpp"
-#include "cursor.hpp"
-#include "draw.hpp"
-
-struct DrawLineController: ChainSlotMixin<CursorClickEvent> {
-	void receive(CursorClickEvent click) override {
-		fmt::print("<Click pos=({}, {}), button={}/>\n", click.x, click.y, magic_enum::enum_name(click.button));
-		if (click.button == CursorClickEvent::Right) {
-			_state = kIdle;
-		} else if (_state == kIdle) {
-			std::tie(_sx, _sy) = std::tie(click.x, click.y);
-			_state = kStarted;
-		} else {
-			auto sx = (u32)(_sx * (f32)(board::width()));
-			auto sy = (u32)(_sy * (f32)(board::height()));
-			auto tx = (u32)(click.x * (f32)(board::width()));
-			auto ty = (u32)(click.y * (f32)(board::height()));
-			board::on_render.connect([sx, sy, tx, ty] {
-				map_line(sx, sy, tx, ty, [](u32 x, u32 y) {
-					board::set_pixel(x, y, kBlack);
-				});
-			});
-			_state = kIdle;
-		}
-	}
-
-private:
-	f32 _sx {}, _sy {};
-	enum State { kIdle, kStarted } _state = kIdle;
-};
+#include "draw_line_controller.hpp"
 
 int main() {
-	int kScrWidth = 800;
-	int kScrHeight = 600;
+	i32 kScrWidth = 800;
+	i32 kScrHeight = 600;
 
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
