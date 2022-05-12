@@ -2,7 +2,7 @@
 
 #include <magic_enum.hpp>
 #include "board.hpp"
-#include "cursor.hpp"
+#include "glfw_context.hpp"
 
 struct DrawLineController: ChainSlotMixin<MouseButton> {
 	DrawLineController();

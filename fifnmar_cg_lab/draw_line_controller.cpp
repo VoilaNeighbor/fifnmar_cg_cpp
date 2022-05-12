@@ -1,10 +1,11 @@
 #include "draw_line_controller.hpp"
 #include "draw.hpp"
+#include "glfw_context.hpp"
 
 DrawLineController::DrawLineController() {
 	board::on_render([this] {
 		if (_state != Started) { return; }
-		auto [cx, cy] = cursor_coordinate();
+		auto [cx, cy] = glfw::cursor_coordinate();
 		if (cx < 0 || cx >= 1 || cy < 0 || cy >= 1) { return; }
 
 		auto x1 = (u32)(cx * board::width());
@@ -22,7 +23,7 @@ void DrawLineController::receive(MouseButton click) {
 		return;
 	}
 
-	auto [cx, cy] = cursor_coordinate();
+	auto [cx, cy] = glfw::cursor_coordinate();
 	auto x = (u32)(cx * board::width());
 	auto y = (u32)(cy * board::height());
 	if (_state == Idle) {

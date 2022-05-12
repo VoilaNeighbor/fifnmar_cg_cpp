@@ -28,6 +28,8 @@ private:
 
 template <typename... Args>
 struct ChainSignal: private ChainSlotMixin<Args...> {
+	ChainSignal() noexcept = default;
+
 	void connect(ChainSlotMixin<Args...>& slot) {
 		slot.prev = this;
 		slot.next = this->next;
