@@ -1,8 +1,8 @@
 #pragma once
 
-#include <magic_enum.hpp>
-#include "board.hpp"
-#include "glfw_context.hpp"
+#include "magic_enum.hpp"
+#include "../board.hpp"
+#include "../glfw_context.hpp"
 
 struct DrawLineController: ChainSlotMixin<MouseButton> {
 	DrawLineController();

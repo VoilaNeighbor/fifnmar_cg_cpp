@@ -1,1 +1,0 @@
-add_library(nuklear INTERFACE nuklear.h nuklear_glfw_gl4.h)

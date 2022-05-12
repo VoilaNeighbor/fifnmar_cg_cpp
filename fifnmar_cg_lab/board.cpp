@@ -30,9 +30,7 @@ namespace {
 		check_err(id, GL_COMPILE_STATUS, glGetShaderiv, glGetShaderInfoLog);
 		return id;
 	}
-} // namespace (helpers)
 
-namespace {
 	struct Vertex {
 		f32 x, y;
 	};
@@ -46,69 +44,69 @@ namespace {
 		{ 1, 1 },
 	}};
 
-	u32 program_id;
-	u32 vertex_array_id;
-	u32 vertex_buffer_id;
-	u32 texture_id;
-	i32 width;
-	i32 height;
-	std::vector<Rgba> pixels;
-	std::vector<std::function<void()>> render_callbacks;
-} // namespace (states)
+	u32 _program_id;
+	u32 _vertex_array_id;
+	u32 _vertex_buffer_id;
+	u32 _texture_id;
+	i32 _width;
+	i32 _height;
+	std::vector<Rgba> _pixels;
+	std::vector<std::function<void()>> _render_callbacks;
+} // namespace
 
 namespace board {
 	void init(u32 width, u32 height) {
-		::width = (i32)width;
-		::height = (i32)height;
-		pixels.resize(width * height, kWhite);
+		_width = (i32)width;
+		_height = (i32)height;
+		_pixels.resize(width * height, kWhite);
 
 		// <Init shader program>
-		program_id = glCreateProgram();
+		_program_id = glCreateProgram();
 		auto vert_id = load_shader(GL_VERTEX_SHADER, "fifnmar_cg_lab/board.vert");
 		auto frag_id = load_shader(GL_FRAGMENT_SHADER, "fifnmar_cg_lab/board.frag");
-		glAttachShader(program_id, vert_id);
-		glAttachShader(program_id, frag_id);
-		glLinkProgram(program_id);
-		check_err(program_id, GL_LINK_STATUS, glGetProgramiv, glGetProgramInfoLog);
+		glAttachShader(_program_id, vert_id);
+		glAttachShader(_program_id, frag_id);
+		glLinkProgram(_program_id);
+		check_err(_program_id, GL_LINK_STATUS, glGetProgramiv, glGetProgramInfoLog);
 		glDeleteShader(frag_id);
 		glDeleteShader(vert_id);
 
 		// <Vertex>
-		glCreateVertexArrays(1, &vertex_array_id);
-		glEnableVertexArrayAttrib(vertex_array_id, 0);
-		glVertexArrayAttribBinding(vertex_array_id, 0, 0);
-		glVertexArrayAttribFormat(vertex_array_id, 0, 2, GL_FLOAT, GL_FALSE, 0);
-		glCreateBuffers(1, &vertex_buffer_id);
-		glNamedBufferData(vertex_buffer_id, sizeof(kVertices), kVertices.data(), GL_DYNAMIC_DRAW);
-		glVertexArrayVertexBuffer(vertex_array_id, 0, vertex_buffer_id, 0, sizeof(Vertex));
+		glCreateVertexArrays(1, &_vertex_array_id);
+		glEnableVertexArrayAttrib(_vertex_array_id, 0);
+		glVertexArrayAttribBinding(_vertex_array_id, 0, 0);
+		glVertexArrayAttribFormat(_vertex_array_id, 0, 2, GL_FLOAT, GL_FALSE, 0);
+		glCreateBuffers(1, &_vertex_buffer_id);
+		glNamedBufferData(_vertex_buffer_id, sizeof(kVertices), kVertices.data(), GL_DYNAMIC_DRAW);
+		glVertexArrayVertexBuffer(_vertex_array_id, 0, _vertex_buffer_id, 0, sizeof(Vertex));
 
 		// <Texture>
-		glCreateTextures(GL_TEXTURE_2D, 1, &texture_id);
-		glTextureParameteri(texture_id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTextureParameteri(texture_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTextureStorage2D(texture_id, 1, GL_RGBA8, ::width, ::height);
+		glCreateTextures(GL_TEXTURE_2D, 1, &_texture_id);
+		glTextureParameteri(_texture_id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameteri(_texture_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureStorage2D(_texture_id, 1, GL_RGBA8, _width, _height);
 	}
 
 	void on_render(std::function<void()> callback) {
-		render_callbacks.emplace_back(std::move(callback));
+		_render_callbacks.emplace_back(std::move(callback));
 	}
 
 	void render() {
-		std::fill(pixels.begin(), pixels.end(), kWhite);
-		for (auto& i: render_callbacks) { i(); }
-		glTextureSubImage2D(texture_id, 0, 0, 0, ::width, ::height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
-		glUseProgram(program_id);
-		glBindTextureUnit(0, texture_id);
-		glUniform1i(glGetUniformLocation(program_id, "tex"), 0);
-		glBindVertexArray(vertex_array_id);
+		std::fill(_pixels.begin(), _pixels.end(), kWhite);
+		for (auto& i: _render_callbacks) { i(); }
+		glTextureSubImage2D(_texture_id, 0, 0, 0, ::_width, ::_height, GL_RGBA, GL_UNSIGNED_BYTE, _pixels.data());
+		glUseProgram(_program_id);
+		glBindTextureUnit(0, _texture_id);
+		glUniform1i(glGetUniformLocation(_program_id, "tex"), 0);
+		glBindVertexArray(_vertex_array_id);
 		glDrawArrays(GL_TRIANGLES, 0, kVertices.size());
 	}
 
 	void set_pixel(u32 x, u32 y, Rgba color) {
-		pixels[y * ::width + x] = color;
+		_pixels[y * ::_width + x] = color;
 	}
 
-	u32 width() { return ::width; }
+	u32 width() { return ::_width; }
 
-	u32 height() { return ::height; }
+	u32 height() { return ::_height; }
 } // namespace board

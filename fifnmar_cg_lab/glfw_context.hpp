@@ -7,8 +7,12 @@
 enum class MouseButton { Left, Right };
 extern ChainSignal<MouseButton> g_cursor_click_signal;
 
+struct GLFWwindow;
 namespace glfw {
+	extern GLFWwindow* raw_window;
+
 	void init();
+
 	void run(std::function<void()> const& on_render);
 
 	// Normalized within 0..1, could be out of range.

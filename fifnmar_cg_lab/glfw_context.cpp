@@ -8,7 +8,7 @@
 ChainSignal<MouseButton> g_cursor_click_signal {};
 
 namespace glfw {
-	static GLFWwindow* _window;
+	GLFWwindow* raw_window;
 
 	void init() {
 		{ // Init GLFW
@@ -22,10 +22,10 @@ namespace glfw {
 			});
 		}
 		{ // Make window
-			_window = glfwCreateWindow(800, 600, "CG Lab with OpenGL", null, null);
-			ensure(_window);
-			glfwMakeContextCurrent(_window);
-			glfwSetFramebufferSizeCallback(_window, [](auto, i32 w, i32 h) { glViewport(0, 0, w, h); });
+			raw_window = glfwCreateWindow(800, 600, "CG Lab with OpenGL", null, null);
+			ensure(raw_window);
+			glfwMakeContextCurrent(raw_window);
+			glfwSetFramebufferSizeCallback(raw_window, [](auto, i32 w, i32 h) { glViewport(0, 0, w, h); });
 			ensure(gladLoadGL(glfwGetProcAddress));
 		}
 		{ // Make cursor
@@ -47,36 +47,24 @@ namespace glfw {
 			};
 			auto cursor = glfwCreateCursor(&cursor_img, radius, radius);
 			ensure(cursor);
-			glfwSetCursor(_window, cursor);
+			glfwSetCursor(raw_window, cursor);
 		}
-		glfwSetMouseButtonCallback(_window, [](auto, i32 button_code, i32 action, auto) {
-			if (action != GLFW_PRESS) { return; }
-			MouseButton button;
-			if (button_code == GLFW_MOUSE_BUTTON_LEFT) {
-				button = MouseButton::Left;
-			} else if (button_code == GLFW_MOUSE_BUTTON_RIGHT) {
-				button = MouseButton::Right;
-			} else {
-				return;
-			}
-			g_cursor_click_signal.send(button);
-		});
 	}
 
-	void run(std::function<void()> const& on_render) {
-		while (!glfwWindowShouldClose(_window)) {
+	void run(std::function<void()> const& on_update) {
+		while (!glfwWindowShouldClose(raw_window)) {
 			glfwWaitEvents();
-			on_render();
-			glfwSwapBuffers(_window);
+			on_update();
+			glfwSwapBuffers(raw_window);
 		}
 	}
 
 	std::pair<f64, f64> cursor_coordinate() {
 		f64 pixel_x, pixel_y;
-		glfwGetCursorPos(_window, &pixel_x, &pixel_y);
+		glfwGetCursorPos(raw_window, &pixel_x, &pixel_y);
 
 		i32 scr_width, scr_height;
-		glfwGetWindowSize(_window, &scr_width, &scr_height);
+		glfwGetWindowSize(raw_window, &scr_width, &scr_height);
 
 		auto x = pixel_x / scr_width;
 		auto y = 1 - pixel_y / scr_height;

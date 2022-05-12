@@ -1,6 +1,6 @@
 #include "draw_line_controller.hpp"
 #include "draw.hpp"
-#include "glfw_context.hpp"
+#include "../glfw_context.hpp"
 
 DrawLineController::DrawLineController() {
 	board::on_render([this] {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils.hpp"
+#include "../utils.hpp"
 
 // Safety: the slop should be in 0..pi/4. The start point is origin.
 void map_line_unsafe(u32 dx, u32 dy, std::invocable<u32, u32> auto f) {
