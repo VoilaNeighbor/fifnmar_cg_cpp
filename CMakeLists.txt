@@ -17,5 +17,6 @@ FetchContent_MakeAvailable(fmt Catch2 magic_enum)
 
 add_subdirectory(dep/glad2)
 add_subdirectory(dep/glfw-3.3.7)
+add_subdirectory(dep/nukclear-4.9.6)
 
 add_subdirectory(fifnmar_cg_lab)
