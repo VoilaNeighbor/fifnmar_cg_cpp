@@ -4,7 +4,7 @@ add_executable(fifnmar_cg_lab
 	glfw_context.cpp
 	main.cpp
 	ui.cpp
-	)
+	draw/draw_circle_controller.cpp draw/draw_circle_controller.hpp)
 target_link_libraries(fifnmar_cg_lab PUBLIC glad2 glfw fmt magic_enum imgui)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT ipo_supported)
