@@ -9,24 +9,27 @@
 
 namespace {
 	i32 _draw_mode;
+
+	void translate_mouse_event(auto, i32 button_code, i32 action, auto) {
+		if (ImGui::GetIO().WantCaptureMouse || action != GLFW_PRESS) { return; }
+		MouseButton button;
+		if (button_code == GLFW_MOUSE_BUTTON_LEFT) {
+			button = MouseButton::Left;
+		} else if (button_code == GLFW_MOUSE_BUTTON_RIGHT) {
+			button = MouseButton::Right;
+		} else {
+			return;
+		}
+		g_cursor_click_signal.send(button);
+	}
 } // namespace
 
 namespace ui {
 	// don't know why some functions are not in a namespace… Perhaps too old.
 	using namespace ImGui;
+
 	void init() {
-		glfwSetMouseButtonCallback(glfw::raw_window, [](auto, i32 button_code, i32 action, auto) {
-			if (GetIO().WantCaptureMouse || action != GLFW_PRESS) { return; }
-			MouseButton button;
-			if (button_code == GLFW_MOUSE_BUTTON_LEFT) {
-				button = MouseButton::Left;
-			} else if (button_code == GLFW_MOUSE_BUTTON_RIGHT) {
-				button = MouseButton::Right;
-			} else {
-				return;
-			}
-			g_cursor_click_signal.send(button);
-		});
+		glfwSetMouseButtonCallback(glfw::raw_window, translate_mouse_event);
 		IMGUI_CHECKVERSION();
 		CreateContext();
 		StyleColorsLight();
