@@ -30,7 +30,6 @@ namespace glfw {
 		}
 		{ // Make cursor
 			u32 kLen = 8;
-			Rgba kColor = kRed;
 			auto radius = (i32)kLen / 2;
 			auto cursor_pixels = box<Rgba[]>(kLen * kLen);
 			for (i32 i = -radius; i != radius; ++i) {

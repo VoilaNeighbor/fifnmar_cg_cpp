@@ -1,8 +1,8 @@
-#include "draw_line_controller.hpp"
+#include "draw_controller.hpp"
 #include "draw_generic.hpp"
 
 
-DrawLineController::DrawLineController() {
+DrawController::DrawController() {
 	board::on_render([this] {
 		if (_state != Started) { return; }
 		auto [cx, cy] = glfw::cursor_coordinate();
@@ -17,7 +17,7 @@ DrawLineController::DrawLineController() {
 	});
 }
 
-void DrawLineController::receive(MouseButton click) {
+void DrawController::receive(MouseButton click) {
 	if (click == MouseButton::Right) {
 		_state = Idle;
 		return;
@@ -39,3 +39,10 @@ void DrawLineController::receive(MouseButton click) {
 		_state = Idle;
 	}
 }
+
+void DrawController::set_mode(DrawController::Mode mode) { _mode = mode; }
+
+DrawController::Mode DrawController::mode() const {
+	return _mode;
+}
+

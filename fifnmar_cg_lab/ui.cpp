@@ -6,11 +6,13 @@
 #include <imgui_impl_opengl3.h>
 
 #include "glfw_context.hpp"
+#include "draw_controller.hpp"
 
 namespace {
 	i32 _draw_mode;
+	DrawController _draw_controller;
 
-	void translate_mouse_event(auto, i32 button_code, i32 action, auto) {
+	void adapt_mouse_event(auto, i32 button_code, i32 action, auto) {
 		if (ImGui::GetIO().WantCaptureMouse || action != GLFW_PRESS) { return; }
 		MouseButton button;
 		if (button_code == GLFW_MOUSE_BUTTON_LEFT) {
@@ -29,7 +31,7 @@ namespace ui {
 	using namespace ImGui;
 
 	void init() {
-		glfwSetMouseButtonCallback(glfw::raw_window, translate_mouse_event);
+		glfwSetMouseButtonCallback(glfw::raw_window, adapt_mouse_event);
 		IMGUI_CHECKVERSION();
 		CreateContext();
 		StyleColorsLight();
