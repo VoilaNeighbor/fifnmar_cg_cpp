@@ -11,6 +11,8 @@ int main() {
 	g_cursor_click_signal.connect(draw_line_controller);
 	glfw::run([] {
 		board::render();
+
+		// UI should be rendered at last.
 		ui::render();
 	});
 }

@@ -87,7 +87,7 @@ namespace board {
 		glTextureStorage2D(_texture_id, 1, GL_RGBA8, _width, _height);
 	}
 
-	void on_render(std::function<void()> callback) {
+	void on_render(RenderCallback callback) {
 		_render_callbacks.emplace_back(std::move(callback));
 	}
 
